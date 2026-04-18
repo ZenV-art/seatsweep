@@ -107,9 +107,47 @@ function ConnectModal({
   k, name, onClose, onConnect,
 }: { k: string; name: string; onClose: () => void; onConnect: () => void }) {
   const isRequest = k === "request";
+  const isSlack = k === "slack";
+  const [token, setToken] = useState("");
+  const [testing, setTesting] = useState(false);
+  const [result, setResult] = useState<null | {
+    ok: boolean;
+    members?: number;
+    ghosts?: number;
+    monthlyWaste?: number;
+    error?: string;
+  }>(null);
+
+  async function testSlackToken() {
+    setTesting(true);
+    setResult(null);
+    try {
+      const res = await fetch("/api/scan/slack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, roster: [] }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        setResult({ ok: false, error: data.error ?? "scan_failed" });
+      } else {
+        setResult({
+          ok: true,
+          members: data.totals.members,
+          ghosts: data.totals.ghosts,
+          monthlyWaste: data.monthlyWaste,
+        });
+      }
+    } catch (e) {
+      setResult({ ok: false, error: e instanceof Error ? e.message : "network" });
+    } finally {
+      setTesting(false);
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm animate-in-fade">
-      <div className="w-full max-w-[440px] rounded-[var(--radius-xl)] bg-white shadow-[var(--shadow-pop)] border border-[var(--color-border)] animate-in-up">
+      <div className="w-full max-w-[460px] rounded-[var(--radius-xl)] bg-white shadow-[var(--shadow-pop)] border border-[var(--color-border)] animate-in-up">
         <div className="p-6 border-b border-[var(--color-border)]">
           <div className="flex items-center gap-3">
             {!isRequest && (
@@ -122,7 +160,11 @@ function ConnectModal({
                 {isRequest ? "Request an integration" : `Connect ${name}`}
               </div>
               <div className="text-xs text-[var(--color-muted-foreground)]">
-                {isRequest ? "Tell us which tool to add next." : "Provide admin credentials. We'll verify and start scanning."}
+                {isRequest
+                  ? "Tell us which tool to add next."
+                  : isSlack
+                  ? "Paste a Slack Bot User OAuth Token (xoxb-…). We'll run a real scan."
+                  : "Provide admin credentials. We'll verify and start scanning."}
               </div>
             </div>
           </div>
@@ -139,6 +181,45 @@ function ConnectModal({
                 <Input className="mt-1" placeholder="Roughly how many seats? Monthly cost?" />
               </div>
             </>
+          ) : isSlack ? (
+            <>
+              <div>
+                <label className="text-xs font-medium">Bot User OAuth Token</label>
+                <Input
+                  className="mt-1 font-mono text-xs"
+                  type="password"
+                  placeholder="xoxb-…your-slack-bot-token…"
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                />
+                <p className="mt-1 text-[11px] text-[var(--color-muted-foreground)]">
+                  Needs scopes <code>users:read</code> and <code>users:read.email</code>. See SETUP.md.
+                </p>
+              </div>
+              {result && (
+                <div
+                  className={`rounded-[var(--radius-md)] text-xs p-3 leading-relaxed ${
+                    result.ok
+                      ? "bg-[var(--color-success-soft,theme(colors.emerald.50))] border border-emerald-200 text-emerald-900"
+                      : "bg-[var(--color-primary-soft)] text-[var(--color-primary-soft-foreground)]"
+                  }`}
+                >
+                  {result.ok ? (
+                    <>
+                      <strong>Scan successful.</strong> Found {result.members} members •{" "}
+                      {result.ghosts} ghost seats • ~${result.monthlyWaste?.toFixed(0)}/mo recoverable.
+                    </>
+                  ) : (
+                    <>
+                      <strong>Scan failed:</strong> {result.error}
+                    </>
+                  )}
+                </div>
+              )}
+              <div className="rounded-[var(--radius-md)] bg-[var(--color-primary-soft)] text-[var(--color-primary-soft-foreground)] text-xs p-3 leading-relaxed">
+                <strong>How we keep this safe:</strong> Tokens are encrypted with AES-256 at rest and only decrypted inside scan workers. Revoke any time from Slack's app directory.
+              </div>
+            </>
           ) : (
             <>
               <div>
@@ -150,14 +231,26 @@ function ConnectModal({
                 <Input className="mt-1" type="password" placeholder="••••••••••" />
               </div>
               <div className="rounded-[var(--radius-md)] bg-[var(--color-primary-soft)] text-[var(--color-primary-soft-foreground)] text-xs p-3 leading-relaxed">
-                <strong>How we keep this safe:</strong> Credentials are encrypted with AES‑256 using a key scoped to your workspace. Sessions run in isolated containers. You can revoke access any time.
+                <strong>How we keep this safe:</strong> Credentials are encrypted with AES-256 using a key scoped to your workspace. Sessions run in isolated containers. You can revoke access any time.
               </div>
             </>
           )}
         </div>
         <div className="p-4 border-t border-[var(--color-border)] bg-[var(--color-subtle)] rounded-b-[var(--radius-xl)] flex items-center justify-end gap-2">
           <Button variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
-          <Button size="sm" onClick={onConnect}>{isRequest ? "Send request" : "Connect"}</Button>
+          {isSlack && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={testSlackToken}
+              disabled={!token.startsWith("xoxb-") || testing}
+            >
+              {testing ? "Scanning…" : "Test scan"}
+            </Button>
+          )}
+          <Button size="sm" onClick={onConnect}>
+            {isRequest ? "Send request" : "Connect"}
+          </Button>
         </div>
       </div>
     </div>

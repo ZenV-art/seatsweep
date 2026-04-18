@@ -2,10 +2,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Check } from "lucide-react";
+import { SocialAuthButtons } from "@/components/site/social-auth";
 
 export default function SignupPage() {
   return (
-    <>
+    <div className="animate-in-up">
       <h1 className="text-2xl font-semibold tracking-tight">Start your free scan</h1>
       <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
         Get to your first savings report in under 5 minutes. No credit card required.
@@ -23,7 +24,15 @@ export default function SignupPage() {
         ))}
       </ul>
 
-      <form action="/dashboard" className="mt-7 space-y-4">
+      <div className="mt-7">
+        <SocialAuthButtons mode="signup" />
+      </div>
+
+      <div className="my-6 flex items-center gap-3 text-xs text-[var(--color-muted-foreground)]">
+        <div className="flex-1 h-px bg-[var(--color-border)]" /> or use email <div className="flex-1 h-px bg-[var(--color-border)]" />
+      </div>
+
+      <form action="/dashboard" className="space-y-4">
         <div>
           <label className="text-xs font-medium">Full name</label>
           <Input className="mt-1" placeholder="Ada Lovelace" required />
@@ -45,6 +54,6 @@ export default function SignupPage() {
       <p className="mt-3 text-sm text-[var(--color-muted-foreground)] text-center">
         Already have an account? <Link href="/login" className="text-[var(--color-primary)] font-medium hover:underline">Sign in</Link>
       </p>
-    </>
+    </div>
   );
 }

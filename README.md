@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SeatSweep
 
-## Getting Started
+Weekly SaaS audits that kill ghost seats and zombie subscriptions. Guaranteed $300/mo in savings — or it's free.
 
-First, run the development server:
+Next.js 16 · Tailwind 4 · TypeScript · Stripe
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Copy `.env.example` → `.env.local` and fill in Stripe / Supabase keys when ready.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `src/app/` — App Router (route groups: `(app)` dashboard, `(auth)` login/signup)
+- `src/components/ui/` — primitives (Button, Card, Badge, Input, Logo)
+- `src/components/site/` — marketing components (nav, hero preview, footer, logos)
+- `src/components/app/` — authenticated app shell (sidebar, topbar)
+- `src/lib/seed.ts` — demo data for V1 (replace with Supabase queries)
+- `src/app/api/stripe/*` — Stripe Checkout + Billing Portal routes
+- `src/app/api/scan/` — mock weekly scan endpoint (replace with Playwright workers)
 
-## Learn More
+## Design tokens
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Stripe‑clean white + soft red (`#fb7185` → `#ef4444` → `#b91c1c`). See `src/app/globals.css`.

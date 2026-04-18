@@ -1,26 +1,123 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --color-background: #ffffff;
+  --color-foreground: #0b0b0f;
+
+  --color-muted: #f6f6f7;
+  --color-muted-foreground: #6b7280;
+  --color-subtle: #fafafa;
+
+  --color-border: #eceef1;
+  --color-border-strong: #dfe2e7;
+  --color-ring: #ef4444;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #0b0b0f;
+
+  --color-primary: #ef4444;
+  --color-primary-foreground: #ffffff;
+  --color-primary-hover: #dc2626;
+  --color-primary-soft: #fef2f2;
+  --color-primary-soft-foreground: #b91c1c;
+
+  --color-success: #10b981;
+  --color-success-soft: #ecfdf5;
+  --color-success-soft-foreground: #047857;
+
+  --color-warning: #f59e0b;
+  --color-warning-soft: #fffbeb;
+  --color-warning-soft-foreground: #b45309;
+
+  --color-danger: #ef4444;
+  --color-danger-soft: #fef2f2;
+  --color-danger-soft-foreground: #b91c1c;
+
+  --color-accent: #fef2f2;
+  --color-accent-foreground: #b91c1c;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+
+  --shadow-soft: 0 1px 2px 0 rgb(15 17 21 / 0.04), 0 1px 3px 0 rgb(15 17 21 / 0.06);
+  --shadow-card: 0 1px 2px 0 rgb(15 17 21 / 0.03), 0 8px 24px -12px rgb(15 17 21 / 0.08);
+  --shadow-pop: 0 8px 32px -8px rgb(15 17 21 / 0.12), 0 4px 8px -4px rgb(15 17 21 / 0.06);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html,
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--color-primary-soft);
+    color: var(--color-primary-soft-foreground);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .bg-radial-red {
+    background-image:
+      radial-gradient(circle at 20% 0%, rgb(254 226 226 / 0.7), transparent 40%),
+      radial-gradient(circle at 80% 0%, rgb(254 202 202 / 0.5), transparent 45%),
+      radial-gradient(circle at 50% 100%, rgb(255 237 237 / 0.6), transparent 55%);
+  }
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgb(15 17 21 / 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(15 17 21 / 0.04) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .mask-fade-b {
+    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  }
+  .focus-ring {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-ring) 30%, transparent);
+  }
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(239 68 68 / 0.08),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.4s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  .animate-in-up {
+    animation: inUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes inUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-in-fade {
+    animation: inFade 0.4s ease-out both;
+  }
+  @keyframes inFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
 }
